@@ -1,11 +1,11 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import LoginForm from '../componentes/LoginForm.jsx';
+import '../styles/global.css';
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Login - Barbershop Joker">
+  <div class="min-h-screen flex items-center justify-center bg-zinc-950 px-4 sm:px-6 lg:px-8">
+    <LoginForm client:load />
+  </div>
 </Layout>
