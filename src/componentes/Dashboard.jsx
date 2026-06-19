@@ -7,6 +7,8 @@ import ProximamentePlaceholder from './compartido/ProximamentePlaceholder';
 import GestionServicios from './Servicios/GestionServicios';
 import GestionBarberos from './Barberos/GestionBarberos';
 import GestionClientes from './Clientes/GestionClientes';
+import GestionInventario from './Inventario/GestionInventario';
+import GestionFinanzas from './Finanzas/GestionFinanzas';
 // ── Menú por rol ──────────────────────────────────────────────
 const MENUS = {
   Administrador: [
@@ -78,6 +80,14 @@ function Contenido({ modulo, rol, usuarioId }) {
     return <GestionClientes />;
   }
 
+  if (modulo === 'inventario' && rol === 'Administrador') {
+    return <GestionInventario />;
+  }
+
+  if (modulo === 'finanzas' && rol === 'Administrador') {
+    return <GestionFinanzas />;
+  }
+
   const labels = {
     barberos: 'Barberos', servicios: 'Servicios', inventario: 'Inventario',
     finanzas: 'Finanzas', reportes: 'Reportes', asistencia: 'Mi Asistencia',
@@ -97,7 +107,7 @@ export default function Dashboard() {
   useEffect(() => {
     const cargarUsuario = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { window.location.assign('/login'); return; }
+      if (!user) { window.location.assign('/'); return; }
 
       const { data: perfil } = await supabase
         .from('usuarios')
@@ -116,7 +126,7 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    window.location.assign('/login');
+    window.location.assign('/');
   };
 
   if (loading) {
