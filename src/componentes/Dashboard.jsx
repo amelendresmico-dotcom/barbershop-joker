@@ -6,9 +6,15 @@ import StatsCards from './compartido/StatsCards';
 import ProximamentePlaceholder from './compartido/ProximamentePlaceholder';
 import GestionServicios from './Servicios/GestionServicios';
 import GestionBarberos from './Barberos/GestionBarberos';
+import GestionComisiones from './Barberos/GestionComisiones';
+import ComisionesBarbero from './Barberos/ComisionesBarbero';
+import BarberoServicios from './Barberos/BarberoServicios';
 import GestionClientes from './Clientes/GestionClientes';
+import PanelCliente from './Clientes/PanelCliente';
+import ReservarCita from './Clientes/ReservarCita';
 import GestionInventario from './Inventario/GestionInventario';
 import GestionFinanzas from './Finanzas/GestionFinanzas';
+import GestionReportes from './reportes/GestionReportes';
 // ── Menú por rol ──────────────────────────────────────────────
 const MENUS = {
   Administrador: [
@@ -16,23 +22,25 @@ const MENUS = {
     { id: 'clientes',   icon: '👤', label: 'Clientes' },
     { id: 'barberos',   icon: '👥', label: 'Barberos' },
     { id: 'servicios',  icon: '✂️',  label: 'Servicios' },
+    { id: 'comisiones', icon: '💰', label: 'Comisiones' },
     { id: 'inventario', icon: '📦', label: 'Inventario' },
     { id: 'finanzas',   icon: '💰', label: 'Finanzas' },
     { id: 'reportes',   icon: '📊', label: 'Reportes' },
   ],
   Barbero: [
     { id: 'citas',      icon: '📅', label: 'Mis Citas' },
-    { id: 'asistencia', icon: '🕐', label: 'Mi Asistencia' },
+    { id: 'servicios',  icon: '✂️',  label: 'Mis Servicios' },
     { id: 'comisiones', icon: '💵', label: 'Mis Comisiones' },
+    { id: 'asistencia', icon: '🕐', label: 'Mi Asistencia' },
   ],
   Cliente: [
-    { id: 'citas',      icon: '📅', label: 'Mis Citas' },
+    { id: 'panel',      icon: '👤', label: 'Mi Panel' },
     { id: 'reservar',   icon: '➕', label: 'Reservar Cita' },
   ],
 };
 
 // ── Router de módulos ─────────────────────────────────────────
-function Contenido({ modulo, rol, usuarioId }) {
+function Contenido({ modulo, rol, usuarioId, moduloActivo }) {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [refrescar, setRefrescar] = useState(0);
 
@@ -49,7 +57,7 @@ function Contenido({ modulo, rol, usuarioId }) {
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-xl font-bold text-zinc-100">
-                {rol === 'Cliente' ? 'Mis Citas' : rol === 'Barbero' ? 'Mis Citas del Día' : 'Agenda de Citas'}
+                {rol === 'Cliente' && moduloActivo === 'panel' ? 'Mi Panel' : rol === 'Cliente' ? 'Mis Citas' : rol === 'Barbero' ? 'Mis Citas del Día' : 'Agenda de Citas'}
               </h3>
               <p className="text-xs text-zinc-400">Sincronizado en tiempo real con la base de datos.</p>
             </div>
@@ -72,8 +80,16 @@ function Contenido({ modulo, rol, usuarioId }) {
     return <GestionServicios />;
   }
 
+  if (modulo === 'servicios' && rol === 'Barbero') {
+    return <BarberoServicios usuarioId={usuarioId} />;
+  }
+
   if (modulo === 'barberos' && rol === 'Administrador') {
     return <GestionBarberos />;
+  }
+
+  if (modulo === 'comisiones' && rol === 'Administrador') {
+    return <GestionComisiones />;
   }
 
   if (modulo === 'clientes' && rol === 'Administrador') {
@@ -88,10 +104,26 @@ function Contenido({ modulo, rol, usuarioId }) {
     return <GestionFinanzas />;
   }
 
+  if (modulo === 'reportes' && rol === 'Administrador') {
+    return <GestionReportes />;
+  }
+
+  if (modulo === 'comisiones' && rol === 'Barbero') {
+    return <ComisionesBarbero usuarioId={usuarioId} />;
+  }
+
+  if (modulo === 'panel' && rol === 'Cliente') {
+    return <PanelCliente usuarioId={usuarioId} />;
+  }
+
+  if (modulo === 'reservar' && rol === 'Cliente') {
+    return <ReservarCita usuarioId={usuarioId} />;
+  }
+
   const labels = {
     barberos: 'Barberos', servicios: 'Servicios', inventario: 'Inventario',
     finanzas: 'Finanzas', reportes: 'Reportes', asistencia: 'Mi Asistencia',
-    comisiones: 'Mis Comisiones', reservar: 'Reservar Cita',
+    comisiones: 'Mis Comisiones', reservar: 'Reservar Cita', panel: 'Mi Panel',
   };
 
   return <ProximamentePlaceholder modulo={labels[modulo] || modulo} />;
@@ -194,8 +226,8 @@ export default function Dashboard() {
             📍 <span className="text-amber-500 font-medium">Sucre, BO</span>
           </div>
         </header>
-        <StatsCards rol={rol} usuarioId={usuario?.id} />
-        <Contenido modulo={moduloActivo} rol={rol} usuarioId={usuario?.id} />
+        {!(rol === 'Cliente' && moduloActivo === 'panel') && <StatsCards rol={rol} usuarioId={usuario?.id} />}
+        <Contenido modulo={moduloActivo} rol={rol} usuarioId={usuario?.id} moduloActivo={moduloActivo} />
       </main>
     </div>
   );
